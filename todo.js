@@ -9,60 +9,50 @@ function addTodo() {
   const text = input.value.trim();
   const dueDate = dueDateInput.value;
   if (!text) return;
-
   const li = document.createElement('li');
   li.className = 'list-group-item d-flex justify-content-between align-items-center';
-
   li.innerHTML = `
-    <div class="flex-grow-1 d-flex align-items-center">
+    <span>
       <span class="todo-text">${text}</span>
-      <small class="text-muted ms-3 todo-date">${dueDate ? 'Due: ' + dueDate : ''}</small>
-    </div>
+      ${dueDate ? '<small class="text-muted">Due: <span class="todo-date">' + dueDate + '</span></small>' : ''}
+    </span>
     <div>
       <button class="btn btn-secondary btn-sm me-2 edit-btn">Edit</button>
       <button class="btn btn-danger btn-sm delete-btn">Delete</button>
     </div>
   `;
-
   document.getElementById('todo-list').appendChild(li);
   input.value = '';
   dueDateInput.value = '';
 
-  const deleteBtn = li.querySelector('.delete-btn');
-  const editBtn = li.querySelector('.edit-btn');
-
   // Delete functionality
-  deleteBtn.addEventListener('click', () => {
+  li.querySelector('.delete-btn').addEventListener('click', function() {
     li.remove();
   });
 
   // Edit functionality
-  editBtn.addEventListener('click', function () {
+  li.querySelector('.edit-btn').addEventListener('click', function () {
     const todoText = li.querySelector('.todo-text');
     const todoDate = li.querySelector('.todo-date');
-
-    if (editBtn.textContent === 'Edit') {
-      const currentText = todoText.textContent;
-      const currentDate = todoDate.textContent.replace('Due: ', '');
-
-      todoText.innerHTML = `<input type="text" class="form-control form-control-sm edit-text" value="${currentText}">`;
-      todoDate.innerHTML = `<input type="date" class="form-control form-control-sm edit-date" value="${currentDate}">`;
-
-      editBtn.textContent = 'Save';
-      editBtn.classList.remove('btn-secondary');
-      editBtn.classList.add('btn-success');
+    if (this.textContent === 'Edit') {
+      // Switch to edit mode
+      todoText.innerHTML = `<input type="text" class="form-control form-control-sm edit-text" value="${todoText.textContent}">`;
+      if (todoDate) {
+        todoDate.innerHTML = `<input type="date" class="form-control form-control-sm edit-date" value="${todoDate.textContent}">`;
+      }
+      this.textContent = 'Save';
+      this.classList.remove('btn-secondary');
+      this.classList.add('btn-success');
     } else {
+      // Save changes
       const newText = li.querySelector('.edit-text').value.trim();
-      const newDate = li.querySelector('.edit-date').value;
-
+      const newDate = todoDate ? li.querySelector('.edit-date').value : '';
       if (!newText) return;
-
       todoText.textContent = newText;
-      todoDate.textContent = newDate ? 'Due: ' + newDate : '';
-
-      editBtn.textContent = 'Edit';
-      editBtn.classList.remove('btn-success');
-      editBtn.classList.add('btn-secondary');
+      if (todoDate) todoDate.textContent = newDate;
+      this.textContent = 'Edit';
+      this.classList.remove('btn-success');
+      this.classList.add('btn-secondary');
     }
   });
 }
