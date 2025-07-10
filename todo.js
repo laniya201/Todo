@@ -8,6 +8,29 @@ document.getElementById('search-btn').addEventListener('click', renderTodos);
 document.getElementById('search-input').addEventListener('input', renderTodos);
 document.getElementById('filter-date').addEventListener('change', renderTodos);
 
+document.getElementById('export-json-btn').addEventListener('click', function() {
+  const dataStr = JSON.stringify(todos, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'todos.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('export-text-btn').addEventListener('click', function() {
+  const text = todos.map(todo =>
+    `Task: ${todo.text}\nDue: ${todo.dueDate || 'N/A'}\nCompleted: ${todo.completed ? 'Yes' : 'No'}\n`
+  ).join('\n');
+  const blob = new Blob([text], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'todos.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+});
 function addTodo() {
   const input = document.getElementById('todo-input');
   const dueDateInput = document.getElementById('due-date');

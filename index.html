@@ -16,6 +16,11 @@
     <h2 class="mb-4 text-center">Todo List</h2>
 
     <!-- Add Todo -->
+     <!-- Add this where you want the export buttons -->
+<div class="mb-3 d-flex gap-2">
+  <button class="btn btn-outline-success btn-sm" id="export-json-btn">Export as JSON</button>
+  <button class="btn btn-outline-primary btn-sm" id="export-text-btn">Export as Text</button>
+</div>
     <div class="input-group mb-3">
       <input type="text" id="todo-input" class="form-control" placeholder="Add a new task">
       <input type="date" id="due-date" class="form-control" style="max-width: 150px;">
