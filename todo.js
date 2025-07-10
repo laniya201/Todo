@@ -1,4 +1,4 @@
-let todos = [];
+let todos = [] || localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')) : [];
 
 document.getElementById('add-btn').addEventListener('click', addTodo);
 document.getElementById('todo-input').addEventListener('keypress', e => {
@@ -14,10 +14,11 @@ function addTodo() {
   const text = input.value.trim();
   const dueDate = dueDateInput.value;
   if (!text) return;
-  todos.push({ text, dueDate });
+  todos.push({ text, dueDate, completed: false });
   input.value = '';
   dueDateInput.value = '';
-    alert('Todo added successfully!');
+  alert('Todo added successfully!');
+  localStorage.setItem('todos', JSON.stringify(todos));
   renderTodos();
 }
 
@@ -37,7 +38,8 @@ function renderTodos() {
     li.className = 'list-group-item d-flex justify-content-between align-items-center';
     li.innerHTML = `
       <div class="flex-grow-1 d-flex align-items-center">
-        <span class="todo-text">${todo.text}</span>
+        <input type="checkbox" class="form-check-input me-2 complete-checkbox" ${todo.completed ? 'checked' : ''}>
+        <span class="todo-text ${todo.completed ? 'text-decoration-line-through text-muted' : ''}">${todo.text}</span>
         <small class="text-muted ms-3 todo-date">${todo.dueDate ? 'Due: ' + todo.dueDate : ''}</small>
       </div>
       <div>
@@ -46,37 +48,66 @@ function renderTodos() {
       </div>
     `;
 
-    // Delete
-    li.querySelector('.delete-btn').addEventListener('click', function() {
-      todos.splice(idx, 1);
+    // Handle completion checkbox
+    li.querySelector('.complete-checkbox').addEventListener('change', function () {
+      todos[idx].completed = this.checked;
       renderTodos();
     });
 
-    // Edit
-   li.querySelector('.edit-btn').addEventListener('click', function editHandler() {
-  const todoText = li.querySelector('.todo-text');
-  const todoDate = li.querySelector('.todo-date');
-  if (this.textContent === 'Edit') {
-    todoText.innerHTML = `<input type="text" class="form-control form-control-sm edit-text" value="${todo.text}">`;
-    todoDate.innerHTML = `<input type="date" class="form-control form-control-sm edit-date" value="${todo.dueDate}">`;
-    this.textContent = 'Save';
-    this.classList.remove('btn-secondary');
-    this.classList.add('btn-success');
-  } else {
-    const newText = li.querySelector('.edit-text').value.trim();
-    const newDate = li.querySelector('.edit-date').value;
-    if (!newText) return;
-    todos[idx].text = newText;
-    todos[idx].dueDate = newDate;
-    renderTodos();
-  }
+    // Delete
+    li.querySelector('.delete-btn').addEventListener('click', function () {
+      todos.splice(idx, 1);
+      renderTodos();
+    });
+    // Save todos to localStorage
 
-      
+    // Edit
+    li.querySelector('.edit-btn').addEventListener('click', function () {
+      const todoText = li.querySelector('.todo-text');
+      const todoDate = li.querySelector('.todo-date');
+      if (this.textContent === 'Edit') {
+        todoText.innerHTML = `<input type="text" class="form-control form-control-sm edit-text" value="${todo.text}">`;
+        todoDate.innerHTML = `<input type="date" class="form-control form-control-sm edit-date" value="${todo.dueDate}">`;
+        this.textContent = 'Save';
+        this.classList.remove('btn-secondary');
+        this.classList.add('btn-success');
+      } else {
+        const newText = li.querySelector('.edit-text').value.trim();
+        const newDate = li.querySelector('.edit-date').value;
+        if (!newText) return;
+        todos[idx].text = newText;
+        todos[idx].dueDate = newDate;
+        renderTodos();
+      }
     });
 
     list.appendChild(li);
   });
+
+  updateSummary(); // Update summary dropdown
+}
+
+function updateSummary() {
+  const summary = document.getElementById('todo-summary');
+  const total = todos.length;
+  const pending = todos.filter(todo => !todo.completed).length;
+  const completed = total - pending;
+
+  summary.innerHTML = `
+    <option selected disabled>Todo Summary</option>
+    <option>Total Todos: ${total}</option>
+    <option>Pending Todos: ${pending}</option>
+    <option>Completed Todos: ${completed}</option>
+  `;
 }
 
 // Initial render
 renderTodos();
+todos.push({ text, dueDate, completed: false });
+input.value = '';
+dueDateInput.value = '';
+alert('Todo added successfully!::');
+
+renderTodos();
+saveTodos();// After todos.splice(idx, 1); renderTodos();
+saveTodos();
